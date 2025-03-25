@@ -13,6 +13,9 @@ spec:
   {{- with .Values.storage.class }}
   storageClassName: {{ . }}
   {{- end }}
+  {{- if .Values.storage.existingvolume }}
+  volumeName: {{ printf "%s-%s" (include "firefly-db.fullname" .) "storage-volume" }}
+  {{- end }}
   accessModes:
     - {{ .Values.storage.accessModes }}
   resources:
