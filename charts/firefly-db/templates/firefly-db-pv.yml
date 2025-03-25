@@ -1,0 +1,32 @@
+{{- if eq .Values.storage.existingClaim "" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ printf "%s-%s" (include "firefly-db.fullname" .) "storage-volume" }}
+  labels:
+    app: {{ template "firefly-db.name" . }}
+    chart: {{ template "firefly-db.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  {{- with .Values.storage.class }}
+  storageClassName: {{ . }}
+  {{- end }}
+  capacity:
+    storage: {{ .Values.storage.dataSize }}
+  accessModes:
+    - {{ .Values.storage.accessModes }}
+  persistentVolumeReclaimPolicy: Retain
+  {{- with .Values.storage.nfs }}
+  nfs:
+    path: {{ .path }}
+    server: {{ .server }}   
+  {{- end -}}
+  {{- if .Values.storage.mountOptions }}
+  mountOptions:
+  {{- range .Values.storage.mountOptions }}
+    - {{ . }}
+  {{- end }}
+  {{- end }}
+{{- end }}
